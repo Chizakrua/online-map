@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="images/logo.png" type="image/x-icon">
+    <title>線上地圖系統</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+        }
+
+        .loading-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            flex-direction: column;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        .loading-container img {
+            width: 100px;
+            height: 100px;
+            animation: float 2s ease-in-out infinite;
+        }
+
+        .error-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            flex-direction: column;
+            display: none; 
+        }
+
+        @keyframes scaleUp {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .error-container img {
+            width: 150px;
+            height: 150px;
+            animation: scaleUp 1s ease-out;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-container" id="loading">
+        <img src="images/loading.gif" alt="Loading">
+        <p>正在連接至線上地圖資料庫...</p>
+    </div>
+
+    <div class="error-container" id="error">
+        <img src="images/error.png" alt="Error">
+        <p>無法連接至地圖資料庫，請稍後再試</p>
+    </div>
+
+    <iframe id="mapFrame" onload="hideLoading()" sandbox="allow-same-origin allow-scripts"></iframe>
+
+    <script>
+        const encodedUrl = 'aHR0cDovL21hcC1hcGkuY2hpemFrdXJhLnVzLmtn';
+        const targetUrl = atob(encodedUrl); 
+        document.getElementById('mapFrame').src = targetUrl;
+
+        const LOAD_TIMEOUT = 10000; 
+        let timeoutId;
+
+        function hideLoading() {
+            clearTimeout(timeoutId); 
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('mapFrame').style.display = 'block';
+        }
+
+        function showError() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'flex';
+        }
+
+        timeoutId = setTimeout(function() {
+            if (document.getElementById('loading').style.display !== 'none') {
+                showError();
+            }
+        }, LOAD_TIMEOUT);
+
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+                e.preventDefault();
+            }
+            if (e.ctrlKey && (e.key === 'c' || e.key === 'x' || e.key === 'v')) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
